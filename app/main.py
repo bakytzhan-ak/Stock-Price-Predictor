@@ -1,4 +1,4 @@
-import datetime
+
 import logging
 import yfinance as yf
 from fastapi import FastAPI
@@ -7,9 +7,6 @@ import ta
 import pandas as pd
 import pickle
 import os
-
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
 
 
 def get_data(stock_ticker, start_date, end_date):
@@ -60,12 +57,12 @@ with open(model_path, "rb") as f:
 @app.post("/predict")
 def predict_price(date: StockPriceDate):
     date = date.stock_date
-    logging.info(f"date is {date}")
     stock_date = pd.to_datetime(date)
     logging.info(f"date is {stock_date}")
     start_date = stock_date - pd.to_timedelta(240, unit='d')
     stock_data = get_data('NVDA', start_date, stock_date)
     prediction = model.predict(stock_data)
+    logging.info(f"stock price is {prediction[-1]}")
     return {"prediction": float(prediction[-1])}
 
 if __name__ == "__main__":
